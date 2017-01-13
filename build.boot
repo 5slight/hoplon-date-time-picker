@@ -28,7 +28,7 @@
    (reload)
    (cljs :optimizations :none
          :source-map true)
-   (serve :dir "target" :port 8083)
+   (serve :dir "target" :port 8000)
    (target :dir #{"target"} :no-link true)))
 
 (deftask prod
