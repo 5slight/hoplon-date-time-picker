@@ -1,0 +1,22 @@
+(page "index.html"
+      (:require [datepicker.core :as dp]))
+
+(html
+ (head
+  (link :rel "stylesheet" :type "text/css" :href "/css/style.css")
+  (link :rel "stylesheet" :type "text/css" :href "/css/iconfont.css"))
+ (body
+  (let [date (cell "")
+        stime (cell "")
+        etime (cell "")]
+    [(h1 "Hoplon datepicker demo")
+     (label "Date") (br)
+     (dp/date-picker :state date)
+     (br)
+     (label "Start time") (br)
+     (dp/time-picker :state stime)
+     (br)
+     (label "End time") (br)
+     (dp/time-picker :state etime)
+     (p (dp/date-with-time date stime))
+     (p (dp/date-with-time date etime))])))

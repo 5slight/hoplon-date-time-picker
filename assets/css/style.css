@@ -1,0 +1,37 @@
+.hidden {display:none}
+.date-picker {
+    width: 15em;
+    position: absolute;
+    z-index: 100;
+    background-color: #F6F6F6;
+    border-radius: 0.3em;
+}
+.date-picker .day.selected {background-color: #888;color: white;}
+.time-picker > .time-item {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+.date-picker table {
+    width: 100%;
+    margin-top: 0.3em;
+}
+.date-picker th {
+    width: 14%;
+}
+.date-picker td.day {
+    text-align: center;
+    height: 1em;
+    font-size: 1.2em;
+    border-radius: 0.15em;
+    background-color: #DDD;
+    cursor: pointer;
+}
+.date-picker button.next {float: right}
+.date-picker button.prev {float: left}
+.date-picker .month-select {
+    text-align:center;
+    padding: 0.3em;
+    font-size: 1.1em;
+}
+.month-select span {font-weight: bold}
