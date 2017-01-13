@@ -17,7 +17,7 @@ cd hoplon-date-time-picker
 boot dev
 ```
 
-When this has finished, navigate to http://localhost:8000 in your web browser.
+When this has finished, navigate to `http://localhost:8000` in your web browser.
 
 ### In a project
 Currently I wouldn't recommend doing this for anything important.
