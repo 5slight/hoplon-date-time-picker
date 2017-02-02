@@ -7,6 +7,10 @@
     border-radius: 0.3em;
 }
 .date-picker .day.selected {background-color: #888;color: white;}
+.date-picker .day.disabled {
+    cursor: default;
+    background-color: #EFEFEF;
+    color: #999;}
 .time-picker > .time-item {
     display: inline-block;
     vertical-align: middle;
