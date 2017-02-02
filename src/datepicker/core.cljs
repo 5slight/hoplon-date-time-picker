@@ -55,7 +55,7 @@
 
 (h/defelem timep [])
 
-(h/defelem month-select [{:keys [cur]}]
+(h/defelem month-select [{:keys [cur allowed-range]}]
   (h/div :class "month-select"
    (h/button
     :class "prev"
@@ -67,28 +67,41 @@
     :click (fn [] (swap! cur #(tc/plus % (tc/months 1))))
     (h/i :class "icon-right-arrow"))))
 
-(h/defelem day [{:keys [state day selected!]}]
+(h/defelem day [{:keys [state day selected! allowed-range]}]
   (let [selected (cell= (and (-> state nil? not) (-> day nil? not)
-                             (tc/equal? (tc/at-midnight state) (tc/at-midnight day))))]
-    (h/td :class (cell= {:day (-> day nil? not) :selected selected})
-          :click #(do (reset! state @day)
-                      (selected! @day))
+                             (tc/equal? (tc/at-midnight state) (tc/at-midnight day))))
+        allowed-start (:start allowed-range)
+        allowed-end (:end allowed-range)
+        in-allowed (cell= (if (nil? allowed-range)
+                            true
+                            (and (-> day nil? not)
+                                 (or (tc/after? day allowed-start)
+                                     (tc/equal? day allowed-start))
+                                 (or (tc/before? day allowed-end)
+                                     (tc/equal? day allowed-end)))))]
+    (h/td :class (cell= {:day (-> day nil? not)
+                         :selected selected
+                         :disabled (not in-allowed)})
+          :click #(when @in-allowed
+                      (do (reset! state @day)
+                          (selected! @day)))
           (cell= (if day (-> day tc/day str))))))
 
-(h/defelem datep [{:keys [cur state selected!]
+(h/defelem datep [{:keys [cur state selected! allowed-range]
                    :or {selected (fn [d])}}]
   (let [days ["Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"]
         fd (cell= (tc/first-day-of-the-month- cur))
         ld (cell= (tc/last-day-of-the-month- cur))
         weeks (cell= (make-weeks fd ld))]
     (h/div :class "date-picker"
-           (month-select :cur cur)
+           (month-select :cur cur :allowed-range allowed-range)
            (h/table
             (h/thead (h/tr (h/loop-tpl :bindings [d (cell= days)] (h/th d))))
             (h/tbody
              (h/loop-tpl :bindings [w (cell= weeks)]
                          (h/tr (h/loop-tpl :bindings [d (cell= w)]
                                            (day :day d :state state
+                                                :allowed-range allowed-range
                                                 :selected! selected!)))))))))
 
 (defn hide-ev [ev exclude state]
@@ -96,7 +109,7 @@
     (if (not (gdom/findNode exclude #(= t %)))
       (reset! state false))))
 
-(h/defelem date-picker [{:keys [identifier state date-format]
+(h/defelem date-picker [{:keys [identifier state date-format allowed-range]
                          :or {date-format default-date-format}}]
   (let [showp (cell false)
         cur (cell (if (-> @state empty?) (tc/now)
@@ -107,6 +120,7 @@
                                :name identifier :value state
                                :click #(swap! showp not))
                       ((datep :state state' :cur cur
+                              :allowed-range allowed-range
                               :selected! #(reset! showp false))
                        :class (cell= {:hidden (not showp)})))]
     (gev/listen js/document goog.events.EventType.CLICK #(hide-ev % picker showp))
