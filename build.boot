@@ -1,6 +1,10 @@
+(def +version+ "0.1.0")
+
 (set-env!
+ :version +version+
  :dependencies '[[adzerk/boot-cljs          "1.7.228-2"]
                  [adzerk/boot-reload        "0.4.13"]
+                 [adzerk/bootlaces          "0.1.13"]
                  [hoplon                    "6.0.0-alpha17"]
                  [org.clojure/clojurescript "1.7.228"]
                  [com.andrewmcveigh/cljs-time "0.4.0"]
@@ -13,10 +17,13 @@
   :resource-paths #{"assets"})
 
 (require
-  '[adzerk.boot-cljs    :refer [cljs]]
-  '[adzerk.boot-reload  :refer [reload]]
-  '[hoplon.boot-hoplon  :refer [hoplon prerender]]
-  '[pandeiro.boot-http  :refer [serve]])
+ '[adzerk.bootlaces    :refer :all]
+ '[adzerk.boot-cljs    :refer [cljs]]
+ '[adzerk.boot-reload  :refer [reload]]
+ '[hoplon.boot-hoplon  :refer [hoplon prerender]]
+ '[pandeiro.boot-http  :refer [serve]])
+
+(bootlaces! +version+)
 
 (deftask dev
   "Build frontend for local development."
@@ -29,7 +36,8 @@
    (cljs :optimizations :none
          :source-map true)
    (serve :dir "target" :port 8000)
-   (target :dir #{"target"} :no-link true)))
+   (target :dir #{"target"} :no-link true)
+   (build-jar)))
 
 (deftask prod
   "Build frontend for production deployment."
@@ -39,3 +47,13 @@
    (cljs :optimizations :advanced)
    (prerender)
    (target :dir #{"target"})))
+
+(task-options!
+ pom    {:project     'lightscale/hoplon-date-time-picker
+         :version     +version+
+         :description "A small widget to represent date and time in hoplon
+                      and cljs-time."
+         :url         "https://github.com/lightscaletech/hoplon-date-time-picker"
+         :scm         {:url "https://github.com/lightscaletech/hoplon-date-time-picker"}
+         :license     {"Eclipse Public License"
+                       "http://www.eclipse.org/legal/epl-v10.html"}})
