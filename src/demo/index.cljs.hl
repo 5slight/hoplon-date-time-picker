@@ -22,5 +22,5 @@
      (br)
      (label "End time") (br)
      (dp/time-picker :state etime)
-     (p (dp/date-with-time date stime))
-     (p (dp/date-with-time date etime))])))
+     (p (dpu/date-with-time date stime))
+     (p (dpu/date-with-time date etime))])))

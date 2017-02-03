@@ -1,51 +1,18 @@
 (ns datepicker.core
   (:require-macros [javelin.core :refer [defc defc= cell= dosync]])
-  (:require [hoplon.core :as h]
-            [javelin.core :refer [cell]]
-            [cljs-time.core :as tc]
-            [cljs-time.format :as tf]
-            [cljs-time.periodic :as tp]
-            [goog.events :as gev]
-            [goog.dom :as gdom]
-            [goog.string :as gstring]))
-
-(def days-in-week 7)
-(def default-date-format :date)
-(def default-time-format :hour-minute)
-
-(defn set-dt-items [dt items]
-  (let [dt-split {:year (tc/year dt) :month (tc/month dt) :day (tc/day dt)
-                  :hour (tc/hour dt) :minute (tc/minute dt)
-                  :second (tc/second dt) :milli (tc/milli dt)}
-        {:keys [year month day hour minute second milli]} (merge dt-split items)]
-    (tc/date-time year month day hour minute second milli)))
-
-(defn merge-date-time [date time]
-  (set-dt-items date {:hour (tc/hour time)
-                      :minute (tc/minute time)}))
-
-(defn year-month [d] (if d (tf/unparse (tf/formatter "MMM - yyyy") d)))
-
-(defn formatter [f]
-  (cond
-    (string? f) (tf/formatter f)
-    (keyword? f) (tf/formatters f)))
-
-(defn date-lense [state f]
-  (cell= (when (-> state empty? not)
-           (tf/parse (formatter f) state))
-         #(reset! state (tf/unparse (formatter f) (tc/to-default-time-zone %)))))
-
-(defn date-with-time
-  ([date time] (date-with-time date time {}))
-  ([date time
-    {:keys [date-format time-format]
-     :or {date-format default-date-format
-          time-format default-time-format}}]
-   (cell= (when (and (-> date empty? not) (-> time empty? not))
-            (let [d (tf/parse (tf/formatters date-format) date)
-                  t (tf/parse (tf/formatters time-format) time)]
-              (tf/unparse (tf/formatters :date-time) (merge-date-time d t)))))))
+  (:require
+   [datepicker.defaults :refer [days-in-week
+                                default-date-format
+                                default-time-format]]
+   [datepicker.utils :as du]
+   [hoplon.core :as h]
+   [javelin.core :refer [cell]]
+   [cljs-time.core :as tc]
+   [cljs-time.format :as tf]
+   [cljs-time.periodic :as tp]
+   [goog.events :as gev]
+   [goog.dom :as gdom]
+   [goog.string :as gstring]))
 
 (defn make-weeks [fday lday]
   (let [fwday (tc/day-of-week fday)
@@ -77,7 +44,7 @@
        (h/i :class "icon-left-arrow"))
       :class (cell= {:disabled (not prev-allowed)})
       :attr (cell= {:disabled (not prev-allowed)}))
-     (h/span (cell= (year-month cur)))
+     (h/span (cell= (du/year-month cur)))
      ((h/button
        :class "next"
        :click (fn [] (when @next-allowed (swap! cur #(tc/plus % (tc/months 1)))))
@@ -137,10 +104,10 @@
         cur (cell (if (-> @state empty?)
                     (tc/now)
                     (tf/parse (tf/formatters state-format) @state)))
-        state' (date-lense state state-format)
+        state' (du/date-lense state state-format)
         dis-state (cell= (do
                            (when (-> state' nil? not)
-                             (tf/unparse (formatter display-format) state'))))
+                             (tf/unparse (du/formatter display-format) state'))))
         picker (h/div :class "date-time-picker"
                       (h/input :type "text" :id identifier
                                :name identifier :value dis-state
@@ -164,15 +131,13 @@
            :click (fn [] (swap! state #(tc/minus % modifier)))
            (h/i :class "icon-down-arrow"))))
 
-(defn round-mins [min inc] (* (.ceil js/Math (/ min inc)) inc))
-
 (h/defelem time-picker [{:keys [identifier state time-format min-inc]
                          :or {time-format default-time-format
                               min-inc 15}}]
-  (let [state' (date-lense state time-format)
+  (let [state' (du/date-lense state time-format)
         now (tc/now)]
     (when (nil? @state')
-      (reset! state' (set-dt-items now {:minute (round-mins (tc/minute now) min-inc)})))
+      (reset! state' (du/set-dt-items now {:minute (du/round-mins (tc/minute now) min-inc)})))
     (h/div :class "time-picker"
            (time-item state' tc/hour (tc/hours 1))
            (h/div :class "time-item" ":")
