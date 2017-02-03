@@ -26,10 +26,15 @@
 
 (defn year-month [d] (if d (tf/unparse (tf/formatter "MMM - yyyy") d)))
 
-(defn date-lense [state formatter]
+(defn formatter [f]
+  (cond
+    (string? f) (tf/formatter f)
+    (keyword? f) (tf/formatters f)))
+
+(defn date-lense [state f]
   (cell= (when (-> state empty? not)
-           (tf/parse (tf/formatters formatter) state))
-         #(reset! state (tf/unparse (tf/formatters formatter) (tc/to-default-time-zone %)))))
+           (tf/parse (formatter f) state))
+         #(reset! state (tf/unparse (formatter f) (tc/to-default-time-zone %)))))
 
 (defn date-with-time
   ([date time] (date-with-time date time {}))
@@ -122,15 +127,23 @@
     (if (not (gdom/findNode exclude #(= t %)))
       (reset! state false))))
 
-(h/defelem date-picker [{:keys [identifier state date-format allowed-range]
-                         :or {date-format default-date-format}}]
+(h/defelem date-picker [{:keys [identifier state
+                                state-format
+                                display-format
+                                allowed-range]
+                         :or {state-format default-date-format
+                              display-format default-date-format}}]
   (let [showp (cell false)
-        cur (cell (if (-> @state empty?) (tc/now)
-                      (tf/parse (tf/formatters date-format) @state)))
-        state' (date-lense state date-format)
+        cur (cell (if (-> @state empty?)
+                    (tc/now)
+                    (tf/parse (tf/formatters state-format) @state)))
+        state' (date-lense state state-format)
+        dis-state (cell= (do
+                           (when (-> state' nil? not)
+                             (tf/unparse (formatter display-format) state'))))
         picker (h/div :class "date-time-picker"
                       (h/input :type "text" :id identifier
-                               :name identifier :value state
+                               :name identifier :value dis-state
                                :click #(swap! showp not))
                       ((datep :state state' :cur cur
                               :allowed-range allowed-range
