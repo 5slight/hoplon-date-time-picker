@@ -1,5 +1,6 @@
 (page "index.html"
       (:require [datepicker.core :as dp]
+                [datepicker.utils :as dpu]
                 [cljs-time.core :as tc]))
 
 (html
@@ -12,9 +13,9 @@
         etime (cell "")]
     [(h1 "Hoplon datepicker demo")
      (label "Date") (br)
-     (let [start (tc/at-midnight (tc/now))
-           end (-> (tc/now) (tc/plus (tc/days 30)) tc/at-midnight)]
-         (dp/date-picker :state date :allowed-range {:start start :end end}))
+     (dp/date-picker :state date
+                     :display-format "EEEE, dd MMMM yyyy"
+                     :allowed-range (dpu/range-inc (tc/days 14)))
      (br)
      (label "Start time") (br)
      (dp/time-picker :state stime)
