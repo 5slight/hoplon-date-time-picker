@@ -68,13 +68,13 @@
      :class "month-select"
      ((h/button
        :class "prev"
-       :click (fn [] (swap! cur #(tc/minus % (tc/months 1))))
+       :click (fn [] (when @prev-allowed (swap! cur #(tc/minus % (tc/months 1)))))
        (h/i :class "icon-left-arrow"))
       :class (cell= {:disabled (not prev-allowed)}))
      (h/span (cell= (year-month cur)))
      ((h/button
        :class "next"
-       :click (fn [] (swap! cur #(tc/plus % (tc/months 1))))
+       :click (fn [] (when @next-allowed (swap! cur #(tc/plus % (tc/months 1)))))
        (h/i :class "icon-right-arrow"))
       :class (cell= {:disabled (not next-allowed)})))))
 
