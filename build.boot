@@ -1,4 +1,4 @@
-(def +version+ "0.1.0")
+(def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
  :version +version+
@@ -49,7 +49,7 @@
    (target :dir #{"target"})))
 
 (task-options!
- pom    {:project     'lightscale/hoplon-date-time-picker
+ pom    {:project     'lightscale/datepicker
          :version     +version+
          :description "A small widget to represent date and time in hoplon
                       and cljs-time."
