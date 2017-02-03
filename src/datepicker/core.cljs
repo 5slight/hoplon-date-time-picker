@@ -78,7 +78,7 @@
        :click (fn [] (when @next-allowed (swap! cur #(tc/plus % (tc/months 1)))))
        (h/i :class "icon-right-arrow"))
       :class (cell= {:disabled (not next-allowed)})
-      :attr (cell= {:disabled (not prev-allowed)})))))
+      :attr (cell= {:disabled (not next-allowed)})))))
 
 (h/defelem day [{:keys [state day selected! allowed-range]}]
   (let [selected (cell= (and (-> state nil? not) (-> day nil? not)
