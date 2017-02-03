@@ -70,13 +70,15 @@
        :class "prev"
        :click (fn [] (when @prev-allowed (swap! cur #(tc/minus % (tc/months 1)))))
        (h/i :class "icon-left-arrow"))
-      :class (cell= {:disabled (not prev-allowed)}))
+      :class (cell= {:disabled (not prev-allowed)})
+      :attr (cell= {:disabled (not prev-allowed)}))
      (h/span (cell= (year-month cur)))
      ((h/button
        :class "next"
        :click (fn [] (when @next-allowed (swap! cur #(tc/plus % (tc/months 1)))))
        (h/i :class "icon-right-arrow"))
-      :class (cell= {:disabled (not next-allowed)})))))
+      :class (cell= {:disabled (not next-allowed)})
+      :attr (cell= {:disabled (not prev-allowed)})))))
 
 (h/defelem day [{:keys [state day selected! allowed-range]}]
   (let [selected (cell= (and (-> state nil? not) (-> day nil? not)
