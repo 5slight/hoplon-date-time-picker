@@ -56,22 +56,33 @@
 (h/defelem timep [])
 
 (h/defelem month-select [{:keys [cur allowed-range]}]
-  (h/div :class "month-select"
-   (h/button
-    :class "prev"
-    :click (fn [] (swap! cur #(tc/minus % (tc/months 1))))
-    (h/i :class "icon-left-arrow"))
-   (h/span (cell= (year-month cur)))
-   (h/button
-    :class "next"
-    :click (fn [] (swap! cur #(tc/plus % (tc/months 1))))
-    (h/i :class "icon-right-arrow"))))
+  (let [allowed-start (cell= (:start allowed-range))
+        allowed-end (cell= (:end allowed-range))
+        next-allowed (cell= (if (nil? allowed-range)
+                              true
+                              (< (tc/month cur) (tc/month allowed-end))))
+        prev-allowed (cell= (if (nil? allowed-range)
+                              true
+                              (> (tc/month cur) (tc/month allowed-start))))]
+    (h/div
+     :class "month-select"
+     ((h/button
+       :class "prev"
+       :click (fn [] (swap! cur #(tc/minus % (tc/months 1))))
+       (h/i :class "icon-left-arrow"))
+      :class (cell= {:disabled (not prev-allowed)}))
+     (h/span (cell= (year-month cur)))
+     ((h/button
+       :class "next"
+       :click (fn [] (swap! cur #(tc/plus % (tc/months 1))))
+       (h/i :class "icon-right-arrow"))
+      :class (cell= {:disabled (not next-allowed)})))))
 
 (h/defelem day [{:keys [state day selected! allowed-range]}]
   (let [selected (cell= (and (-> state nil? not) (-> day nil? not)
                              (tc/equal? (tc/at-midnight state) (tc/at-midnight day))))
-        allowed-start (:start allowed-range)
-        allowed-end (:end allowed-range)
+        allowed-start (cell= (:start allowed-range))
+        allowed-end (cell= (:end allowed-range))
         in-allowed (cell= (if (nil? allowed-range)
                             true
                             (and (-> day nil? not)
