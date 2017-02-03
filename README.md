@@ -41,3 +41,6 @@ For a time picker:
 (let [state (cell "")]
     (dp/time-picker :state state))
 ```
+
+    
+Copyright (c) 2017 Lightscale Tech Ltd
