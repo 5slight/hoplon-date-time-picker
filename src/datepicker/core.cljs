@@ -105,9 +105,7 @@
                     (tc/now)
                     (tf/parse (tf/formatters state-format) @state)))
         state' (du/date-lense state state-format)
-        dis-state (cell= (do
-                           (when (-> state' nil? not)
-                             (tf/unparse (du/formatter display-format) state'))))
+        dis-state (du/date-display-lense state' display-format)
         picker (h/div :class "date-time-picker"
                       (h/input :type "text" :id identifier
                                :name identifier :value dis-state
