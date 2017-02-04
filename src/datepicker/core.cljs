@@ -96,11 +96,7 @@
 
 (defn date-picker-state-init [state allowed-range]
   (when (nil? @state) (reset! state (tc/now)))
-  (when (-> allowed-range nil? not)
-    (when (tc/after? @state (:end allowed-range))
-      (reset! state (:end allowed-range)))
-    (when (tc/before? @state (:start allowed-range))
-      (reset! state (:start allowed-range)))))
+  (reset! state (du/within-allowed @state allowed-range)))
 
 (h/defelem date-picker [{:keys [identifier state
                                 state-format
