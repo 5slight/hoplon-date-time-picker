@@ -18,6 +18,12 @@
            (tf/parse (formatter f) state))
          #(reset! state (tf/unparse (formatter f) (tc/to-default-time-zone %)))))
 
+(defn date-display-lense [state f]
+  (cell= (when (-> state nil? not)
+           (.log js/console state)
+           (tf/unparse (formatter f) state))
+         #(reset! state (tf/parse (formatter f) (tc/to-default-time-zone %)))))
+
 (defn range-inc
   ([inc] (range-inc (tc/at-midnight (tc/now)) inc))
   ([start inc]
@@ -34,7 +40,6 @@
 (defn merge-date-time [date time]
   (set-dt-items date {:hour (tc/hour time)
                       :minute (tc/minute time)}))
-
 
 (defn date-with-time
   ([date time] (date-with-time date time {}))
