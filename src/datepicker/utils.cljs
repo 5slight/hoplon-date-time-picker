@@ -33,7 +33,10 @@
   ([state f allowed-range]
    (cell= (when (-> state nil? not)
             (tf/unparse (formatter f) state))
-          #(reset! state (tf/parse (formatter f) %)))))
+          #(reset! state
+                   (within-allowed
+                    (tf/parse (formatter f) %)
+                    allowed-range)))))
 
 (defn range-inc
   ([inc] (range-inc (tc/at-midnight (tc/now)) inc))
