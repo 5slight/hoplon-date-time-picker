@@ -94,6 +94,14 @@
     (if (not (gdom/findNode exclude #(= t %)))
       (reset! state false))))
 
+(defn date-picker-state-init [state allowed-range]
+  (when (nil? @state) (reset! state (tc/now)))
+  (when (-> allowed-range nil? not)
+    (when (tc/after? @state (:end allowed-range))
+      (reset! state (:end allowed-range)))
+    (when (tc/before? @state (:start allowed-range))
+      (reset! state (:start allowed-range)))))
+
 (h/defelem date-picker [{:keys [identifier state
                                 state-format
                                 display-format
@@ -106,16 +114,18 @@
                     (tf/parse (tf/formatters state-format) @state)))
         state' (du/date-lense state state-format)
         dis-state (du/date-display-lense state' display-format)
-        picker (h/div :class "date-time-picker"
-                      (h/input :type "text" :id identifier
-                               :name identifier :value dis-state
-                               :click #(swap! showp not))
-                      ((datep :state state' :cur cur
-                              :allowed-range allowed-range
-                              :selected! #(reset! showp false))
-                       :class (cell= {:hidden (not showp)})))]
+        picker (h/div
+                :class "date-time-picker"
+                (h/input :type "text" :id identifier
+                         :name identifier :value dis-state
+                         :change #(reset! dis-state @%)
+                         :click #(swap! showp not))
+                ((datep :state state' :cur cur
+                        :allowed-range allowed-range
+                        :selected! #(reset! showp false))
+                 :class (cell= {:hidden (not showp)})))]
     (gev/listen js/document goog.events.EventType.CLICK #(hide-ev % picker showp))
-    (when (nil? @state') (reset! state' (tc/now)))
+    (date-picker-state-init state' allowed-range)
     picker))
 
 (defn time-item [state display modifier]
