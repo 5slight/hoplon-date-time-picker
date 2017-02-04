@@ -20,9 +20,8 @@
 
 (defn date-display-lense [state f]
   (cell= (when (-> state nil? not)
-           (.log js/console state)
            (tf/unparse (formatter f) state))
-         #(reset! state (tf/parse (formatter f) (tc/to-default-time-zone %)))))
+         #(reset! state (tf/parse (formatter f) %))))
 
 (defn range-inc
   ([inc] (range-inc (tc/at-midnight (tc/now)) inc))
