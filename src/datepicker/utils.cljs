@@ -13,15 +13,27 @@
 
 (defn year-month [d] (if d (tf/unparse (formatter "MMM - yyyy") d)))
 
+(defn within-allowed [date allowed-range]
+  (if (nil? allowed-range)
+    date
+    (if (tc/after? date (:end allowed-range))
+      (:end allowed-range)
+      (if (tc/before? date (:start allowed-range))
+        (:start allowed-range)
+        date))))
+
 (defn date-lense [state f]
   (cell= (when (-> state empty? not)
            (tf/parse (formatter f) state))
          #(reset! state (tf/unparse (formatter f) (tc/to-default-time-zone %)))))
 
-(defn date-display-lense [state f]
-  (cell= (when (-> state nil? not)
-           (tf/unparse (formatter f) state))
-         #(reset! state (tf/parse (formatter f) %))))
+
+(defn date-display-lense
+  ([state f] (date-display-lense state f nil))
+  ([state f allowed-range]
+   (cell= (when (-> state nil? not)
+            (tf/unparse (formatter f) state))
+          #(reset! state (tf/parse (formatter f) %)))))
 
 (defn range-inc
   ([inc] (range-inc (tc/at-midnight (tc/now)) inc))
